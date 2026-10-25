@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#315744">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <title>Carteles de Bodega</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Librería para leer archivos Excel -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
+  </script>
+
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+
+<div class="app-shell">
+
+  <!-- =====================================================
+       CABECERA
+  ====================================================== -->
+
+  <header class="cabecera">
+    <h1>Carteles de Bodega</h1>
+    <p>Creación e impresión de carteles</p>
+  </header>
+
+
+  <main class="contenido">
+
+    <!-- =====================================================
+         CREAR CARTEL
+    ====================================================== -->
+
+    <section class="panel">
+
+      <h2 id="tituloFormulario">Crear Cartel</h2>
+
+      <form id="formularioCartel" autocomplete="off">
+
+        <div class="campos">
+
+          <div class="campo">
+            <label for="deposito">DEPÓSITO / BARRICAS</label>
+            <input
+              type="text"
+              id="deposito"
+              placeholder="Número o texto"
+              required>
+          </div>
+
+
+          <div class="campo">
+            <label for="litros">LITROS</label>
+            <input
+              type="text"
+              id="litros"
+              inputmode="decimal"
+              placeholder="Número"
+              required>
+          </div>
+
+
+          <div class="campo">
+            <label for="anada">AÑADA</label>
+            <input
+              type="text"
+              id="anada"
+              inputmode="numeric"
+              placeholder="Ej.: 2026"
+              required>
+          </div>
+
+
+          <div class="campo">
+            <label for="tipoVino">TIPO DE VINO</label>
+
+            <select id="tipoVino" required>
+              <option value="">Selecciona...</option>
+              <option value="Tinto">TINTO</option>
+              <option value="Blanco">BLANCO</option>
+              <option value="Rosado">ROSADO</option>
+              <option value="Otros">OTROS</option>
+            </select>
+          </div>
+
+
+          <div class="campo">
+            <label for="calificacion">CALIFICACIÓN</label>
+
+            <select id="calificacion" required>
+              <option value="">Selecciona...</option>
+              <option value="D.O. TORO">D.O. TORO</option>
+              <option value="VTCYL">VTCYL</option>
+              <option value="VINOS DE MESA (Sin IGP)">
+                VINOS DE MESA (Sin IGP)
+              </option>
+            </select>
+          </div>
+
+
+          <div class="campo">
+            <label for="variedad">VARIEDAD DE UVA</label>
+            <input
+              type="text"
+              id="variedad"
+              placeholder="Texto y/o número"
+              required>
+          </div>
+
+        </div>
+
+
+        <!-- BOTONES MANUALES -->
+
+        <div class="acciones-formulario">
+
+          <button
+            type="submit"
+            id="botonGuardar"
+            class="boton principal">
+            Guardar Cartel
+          </button>
+
+
+          <button
+            type="button"
+            id="botonNuevo"
+            class="boton secundario">
+            Nuevo / Cancelar
+          </button>
+
+        </div>
+
+
+        <!-- =================================================
+             IMPORTAR EXCEL
+        ================================================== -->
+
+        <div class="importar-excel">
+
+          <input
+            type="file"
+            id="archivoExcel"
+            accept=".xlsx,.xls"
+            hidden>
+
+          <button
+            type="button"
+            id="botonImportarExcel"
+            class="boton importar">
+            📥 Importar Excel
+          </button>
+
+          <p class="texto-importacion">
+            Selecciona un archivo Excel para crear automáticamente
+            todos los carteles.
+          </p>
+
+        </div>
+
+      </form>
+
+
+      <div
+        id="mensajeEstado"
+        class="mensaje"
+        aria-live="polite">
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         VISTA PREVIA
+    ====================================================== -->
+
+    <section class="panel">
+
+      <h2>Vista previa</h2>
+
+      <p class="ayuda">
+        Así se verá el cartel.
+      </p>
+
+
+      <article class="cartel cartel-previa">
+
+        <div class="bloque-cartel bloque-deposito">
+          <span>DEPÓSITO / BARRICAS</span>
+          <strong id="prevDeposito">—</strong>
+        </div>
+
+
+        <div class="bloque-cartel">
+          <span>LITROS</span>
+          <strong id="prevLitros">—</strong>
+        </div>
+
+
+        <div class="bloque-cartel">
+          <span>AÑADA</span>
+          <strong id="prevAnada">—</strong>
+        </div>
+
+
+        <div class="bloque-cartel">
+          <span>TIPO DE VINO</span>
+          <strong id="prevTipoVino">—</strong>
+        </div>
+
+
+        <div class="bloque-cartel">
+          <span>CALIFICACIÓN</span>
+          <strong id="prevCalificacion">—</strong>
+        </div>
+
+
+        <div class="bloque-cartel">
+          <span>VARIEDAD DE UVA</span>
+          <strong id="prevVariedad">—</strong>
+        </div>
+
+      </article>
+
+    </section>
+
+
+    <!-- =====================================================
+         MIS CARTELES
+    ====================================================== -->
+
+    <section class="panel">
+
+      <div class="encabezado-lista">
+
+        <div>
+          <h2>Mis Carteles</h2>
+
+          <p
+            id="contadorCarteles"
+            class="ayuda">
+            0 carteles
+          </p>
+        </div>
+
+      </div>
+
+
+      <!-- BOTONES DE SELECCIÓN -->
+
+      <div class="controles-seleccion">
+
+        <label class="seleccion-todos">
+
+          <input
+            type="checkbox"
+            id="seleccionarTodos">
+
+          <span>Seleccionar todos</span>
+
+        </label>
+
+
+        <button
+          type="button"
+          id="botonDeseleccionar"
+          class="boton pequeno secundario">
+          Deseleccionar
+        </button>
+
+      </div>
+
+
+      <!-- ACCIONES SOBRE SELECCIONADOS -->
+
+      <div class="acciones-lote">
+
+        <button
+          type="button"
+          id="botonEliminarSeleccionados"
+          class="boton peligro">
+          Eliminar seleccionados
+        </button>
+
+
+        <button
+          type="button"
+          id="botonImprimirSeleccionados"
+          class="boton principal">
+          Imprimir seleccionados
+        </button>
+
+      </div>
+
+
+      <p
+        id="contadorSeleccionados"
+        class="contador-seleccionados">
+        0 seleccionados
+      </p>
+
+
+      <p
+        id="mensajeVacio"
+        class="vacio">
+        No hay carteles guardados.
+      </p>
+
+
+      <div
+        id="listaCarteles"
+        class="lista-carteles">
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer class="pie">
+    Los carteles se guardan en este dispositivo.
+  </footer>
+
+</div>
+
+
+<!-- =======================================================
+     ZONA EXCLUSIVA DE IMPRESIÓN
+======================================================== -->
+
+<section
+  id="zonaImpresion"
+  aria-hidden="true">
+</section>
+
+</body>
+</html>

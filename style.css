@@ -1,0 +1,539 @@
+:root {
+  --fondo: #eef2ef;
+  --panel: #ffffff;
+  --principal: #315744;
+  --principal-hover: #244432;
+  --texto: #25332b;
+  --secundario: #68756d;
+  --borde: #d2dcd5;
+  --peligro: #b73535;
+  --importar: #426c8b;
+  --radio: 14px;
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.45;
+}
+
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+
+button {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+
+.app-shell {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+
+/* =========================================================
+   CABECERA
+========================================================= */
+
+.cabecera {
+  padding: 24px 18px;
+  background: var(--principal);
+  color: white;
+}
+
+
+.cabecera h1 {
+  margin: 0;
+  font-size: clamp(25px, 6vw, 34px);
+}
+
+
+.cabecera p {
+  margin: 6px 0 0;
+  color: #dce8df;
+}
+
+
+/* =========================================================
+   CONTENIDO
+========================================================= */
+
+.contenido {
+  display: grid;
+  gap: 18px;
+  padding: 16px;
+}
+
+
+.panel {
+  padding: 18px;
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: 0 3px 12px rgb(0 0 0 / 4%);
+}
+
+
+.panel h2 {
+  margin: 0 0 12px;
+  font-size: 22px;
+}
+
+
+.ayuda {
+  margin: 0 0 14px;
+  color: var(--secundario);
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   FORMULARIO
+========================================================= */
+
+.campos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+
+.campo label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+
+.campo input,
+.campo select {
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 12px;
+  background: #fff;
+  color: var(--texto);
+  border: 1px solid #bdc9c1;
+  border-radius: 8px;
+}
+
+
+.campo input:focus,
+.campo select:focus {
+  outline: 3px solid rgb(49 87 68 / 18%);
+  border-color: var(--principal);
+}
+
+
+/* =========================================================
+   BOTONES
+========================================================= */
+
+.acciones-formulario,
+.acciones-lote {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+
+.boton {
+  min-height: 44px;
+  padding: 10px 15px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+
+.principal {
+  background: var(--principal);
+  color: white;
+}
+
+
+.principal:hover {
+  background: var(--principal-hover);
+}
+
+
+.secundario {
+  background: #edf1ee;
+  color: var(--texto);
+  border-color: var(--borde);
+}
+
+
+.peligro {
+  background: var(--peligro);
+  color: white;
+}
+
+
+.importar {
+  background: var(--importar);
+  color: white;
+}
+
+
+.boton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+
+.pequeno {
+  min-height: 38px;
+  padding: 7px 11px;
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   IMPORTAR EXCEL
+========================================================= */
+
+.importar-excel {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--borde);
+}
+
+
+.texto-importacion {
+  margin: 8px 0 0;
+  color: var(--secundario);
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   MENSAJES
+========================================================= */
+
+.mensaje {
+  min-height: 0;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+
+.mensaje.exito {
+  color: #21663b;
+}
+
+
+.mensaje.error {
+  color: #a32020;
+}
+
+
+/* =========================================================
+   CARTEL
+========================================================= */
+
+.cartel {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background: white;
+  color: #111;
+  border: 2px solid #111;
+}
+
+
+.cartel-previa {
+  min-height: 440px;
+  justify-content: space-between;
+}
+
+
+.bloque-cartel {
+  display: flex;
+  min-height: 60px;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  padding: 10px;
+  border: 2px solid #111;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+
+.bloque-cartel span {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+
+.bloque-cartel strong {
+  max-width: 100%;
+  font-size: clamp(22px, 5vw, 30px);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+
+.bloque-deposito strong {
+  font-size: clamp(26px, 6vw, 36px);
+}
+
+
+/* =========================================================
+   MIS CARTELES
+========================================================= */
+
+.controles-seleccion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--borde);
+  border-bottom: 1px solid var(--borde);
+}
+
+
+.seleccion-todos {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+
+.seleccion-todos input,
+.fila-seleccion input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--principal);
+}
+
+
+.contador-seleccionados {
+  margin: 0;
+  color: var(--secundario);
+  font-size: 14px;
+}
+
+
+.lista-carteles {
+  display: grid;
+  gap: 12px;
+}
+
+
+.tarjeta-guardada {
+  padding: 14px;
+  background: white;
+  border: 1px solid var(--borde);
+  border-radius: 10px;
+}
+
+
+.fila-titulo {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+
+.fila-seleccion {
+  display: flex;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+
+.titulo-cartel {
+  min-width: 0;
+  margin: 0;
+  font-size: 19px;
+  overflow-wrap: anywhere;
+}
+
+
+.detalles-cartel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+  margin: 12px 0;
+  font-size: 14px;
+}
+
+
+.detalles-cartel p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+
+.botones-tarjeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+
+.botones-tarjeta .boton {
+  flex: 1 1 90px;
+}
+
+
+.vacio {
+  padding: 18px;
+  color: var(--secundario);
+  text-align: center;
+  border: 1px dashed var(--borde);
+  border-radius: 8px;
+}
+
+
+.pie {
+  padding: 4px 18px 24px;
+  color: var(--secundario);
+  font-size: 12px;
+  text-align: center;
+}
+
+
+/* =========================================================
+   ESCRITORIO
+========================================================= */
+
+@media (min-width: 600px) {
+
+  .campos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+
+  .detalles-cartel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+
+  .contenido {
+    padding: 22px;
+  }
+
+
+  .panel {
+    padding: 22px;
+  }
+
+}
+
+
+/* =========================================================
+   IMPRESIÓN A4
+========================================================= */
+
+#zonaImpresion {
+  display: none;
+}
+
+
+@page {
+  size: A4 portrait;
+  margin: 8mm;
+}
+
+
+@media print {
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+
+  .app-shell {
+    display: none !important;
+  }
+
+
+  #zonaImpresion {
+    display: block !important;
+    width: 100%;
+  }
+
+
+  #zonaImpresion .cartel {
+    display: flex !important;
+    width: 100%;
+    height: 281mm;
+    min-height: 0;
+    margin: 0;
+    padding: 7mm;
+    gap: 5mm;
+    border: 2px solid #111;
+    break-after: page;
+    page-break-after: always;
+    overflow: hidden;
+  }
+
+
+  #zonaImpresion .cartel:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+
+  #zonaImpresion .bloque-cartel {
+    min-height: 0;
+    padding: 5mm;
+    border: 2px solid #111;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+
+  #zonaImpresion .bloque-cartel span {
+    font-size: 23pt;
+  }
+
+
+  #zonaImpresion .bloque-cartel strong {
+    font-size: 34pt;
+  }
+
+
+  #zonaImpresion .bloque-deposito strong {
+    font-size: 38pt;
+  }
+
+}
