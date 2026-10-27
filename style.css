@@ -537,3 +537,41 @@ button {
   }
 
 }
+
+/* =========================================================
+   AJUSTES DE IMPRESIÓN
+========================================================= */
+
+@media print {
+
+  .cartel-impresion {
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+}
+
+
+
+
+/* =========================================================
+   VARIEDAD DE UVA: UNA SOLA LÍNEA
+========================================================= */
+
+#zonaImpresion .bloque-variedad {
+  min-width: 0;
+  align-items: stretch;
+}
+
+#zonaImpresion .bloque-variedad .valor-variedad {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
+  word-break: normal !important;
+  text-align: center;
+}
+

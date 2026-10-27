@@ -47,78 +47,246 @@
 
         <div class="campos">
 
+
+          <!-- =================================================
+               TIPO DE UBICACIÓN
+          ================================================== -->
+
           <div class="campo">
-            <label for="deposito">DEPÓSITO / BARRICAS</label>
-            <input
-              type="text"
-              id="deposito"
-              placeholder="Número o texto"
-              required>
+
+            <label for="tipoUbicacion">
+              TIPO DE UBICACIÓN
+            </label>
+
+            <select id="tipoUbicacion">
+
+              <option value="deposito">
+                DEPÓSITO
+              </option>
+
+              <option value="barricas">
+                BARRICAS
+              </option>
+
+            </select>
+
           </div>
 
 
+          <!-- =================================================
+               DEPÓSITO
+          ================================================== -->
+
+          <div
+            class="campo"
+            id="campoDeposito">
+
+            <label for="deposito">
+              DEPÓSITO
+            </label>
+
+            <select id="deposito">
+
+              <option value="">
+                Selecciona...
+              </option>
+
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+              <option value="13">13</option>
+              <option value="14">14</option>
+              <option value="15">15</option>
+              <option value="16">16</option>
+              <option value="17">17</option>
+              <option value="18">18</option>
+              <option value="19">19</option>
+              <option value="20">20</option>
+              <option value="21">21</option>
+              <option value="22">22</option>
+              <option value="23">23</option>
+
+              <option value="AUXILIAR 1">
+                AUXILIAR 1
+              </option>
+
+              <option value="AUXILIAR 2">
+                AUXILIAR 2
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <!-- =================================================
+               BARRICAS
+          ================================================== -->
+
+          <div
+            class="campo"
+            id="campoBarricas"
+            hidden>
+
+            <label for="textoBarricas">
+              BARRICAS
+            </label>
+
+            <input
+              type="text"
+              id="textoBarricas"
+              placeholder="Ej.: BARRICAS, 225 L, 300 L, Lote Roble...">
+
+          </div>
+
+
+          <!-- =================================================
+               LITROS
+          ================================================== -->
+
           <div class="campo">
-            <label for="litros">LITROS</label>
+
+            <label for="litros">
+              LITROS
+            </label>
+
             <input
               type="text"
               id="litros"
               inputmode="decimal"
               placeholder="Número"
               required>
+
           </div>
 
 
+          <!-- =================================================
+               AÑADA
+          ================================================== -->
+
           <div class="campo">
-            <label for="anada">AÑADA</label>
+
+            <label for="anada">
+              AÑADA
+            </label>
+
             <input
               type="text"
               id="anada"
               inputmode="numeric"
               placeholder="Ej.: 2026"
               required>
+
           </div>
 
 
-          <div class="campo">
-            <label for="tipoVino">TIPO DE VINO</label>
+          <!-- =================================================
+               TIPO DE VINO
+          ================================================== -->
 
-            <select id="tipoVino" required>
-              <option value="">Selecciona...</option>
-              <option value="Tinto">TINTO</option>
-              <option value="Blanco">BLANCO</option>
-              <option value="Rosado">ROSADO</option>
-              <option value="Otros">OTROS</option>
+          <div class="campo">
+
+            <label for="tipoVino">
+              TIPO DE VINO
+            </label>
+
+            <select
+              id="tipoVino"
+              required>
+
+              <option value="">
+                Selecciona...
+              </option>
+
+              <option value="TINTO">
+                TINTO
+              </option>
+
+              <option value="BLANCO">
+                BLANCO
+              </option>
+
+              <option value="ROSADO">
+                ROSADO
+              </option>
+
+              <option value="OTROS">
+                OTROS
+              </option>
+
             </select>
+
           </div>
 
 
-          <div class="campo">
-            <label for="calificacion">CALIFICACIÓN</label>
+          <!-- =================================================
+               CALIFICACIÓN
+          ================================================== -->
 
-            <select id="calificacion" required>
-              <option value="">Selecciona...</option>
-              <option value="D.O. TORO">D.O. TORO</option>
-              <option value="VTCYL">VTCYL</option>
+          <div class="campo">
+
+            <label for="calificacion">
+              CALIFICACIÓN
+            </label>
+
+            <select
+              id="calificacion"
+              required>
+
+              <option value="">
+                Selecciona...
+              </option>
+
+              <option value="D.O. TORO">
+                D.O. TORO
+              </option>
+
+              <option value="VTCYL">
+                VTCYL
+              </option>
+
               <option value="VINOS DE MESA (Sin IGP)">
                 VINOS DE MESA (Sin IGP)
               </option>
+
             </select>
+
           </div>
 
 
+          <!-- =================================================
+               VARIEDAD
+          ================================================== -->
+
           <div class="campo">
-            <label for="variedad">VARIEDAD DE UVA</label>
+
+            <label for="variedad">
+              VARIEDAD DE UVA
+            </label>
+
             <input
               type="text"
               id="variedad"
               placeholder="Texto y/o número"
               required>
+
           </div>
 
         </div>
 
 
-        <!-- BOTONES MANUALES -->
+        <!-- =================================================
+             BOTONES MANUALES
+        ================================================== -->
 
         <div class="acciones-formulario">
 
@@ -126,7 +294,9 @@
             type="submit"
             id="botonGuardar"
             class="boton principal">
+
             Guardar Cartel
+
           </button>
 
 
@@ -134,7 +304,9 @@
             type="button"
             id="botonNuevo"
             class="boton secundario">
+
             Nuevo / Cancelar
+
           </button>
 
         </div>
@@ -152,16 +324,22 @@
             accept=".xlsx,.xls"
             hidden>
 
+
           <button
             type="button"
             id="botonImportarExcel"
             class="boton importar">
+
             📥 Importar Excel
+
           </button>
 
+
           <p class="texto-importacion">
-            Selecciona un archivo Excel para crear automáticamente
-            todos los carteles.
+
+            Selecciona un archivo Excel para crear
+            automáticamente todos los carteles.
+
           </p>
 
         </div>
@@ -169,10 +347,13 @@
       </form>
 
 
+      <!-- MENSAJE DE ESTADO -->
+
       <div
         id="mensajeEstado"
         class="mensaje"
         aria-live="polite">
+
       </div>
 
     </section>
@@ -184,48 +365,109 @@
 
     <section class="panel">
 
-      <h2>Vista previa</h2>
+      <h2>
+        Vista previa
+      </h2>
+
 
       <p class="ayuda">
+
         Así se verá el cartel.
+
       </p>
 
 
       <article class="cartel cartel-previa">
 
-        <div class="bloque-cartel bloque-deposito">
-          <span>DEPÓSITO / BARRICAS</span>
-          <strong id="prevDeposito">—</strong>
+
+        <!-- UBICACIÓN -->
+
+        <div
+          class="bloque-cartel bloque-deposito">
+
+          <span id="prevEtiquetaUbicacion">
+            DEPÓSITO
+          </span>
+
+          <strong id="prevDeposito">
+            —
+          </strong>
+
         </div>
 
 
+        <!-- LITROS -->
+
         <div class="bloque-cartel">
-          <span>LITROS</span>
-          <strong id="prevLitros">—</strong>
+
+          <span>
+            LITROS
+          </span>
+
+          <strong id="prevLitros">
+            —
+          </strong>
+
         </div>
 
 
+        <!-- AÑADA -->
+
         <div class="bloque-cartel">
-          <span>AÑADA</span>
-          <strong id="prevAnada">—</strong>
+
+          <span>
+            AÑADA
+          </span>
+
+          <strong id="prevAnada">
+            —
+          </strong>
+
         </div>
 
 
+        <!-- TIPO DE VINO -->
+
         <div class="bloque-cartel">
-          <span>TIPO DE VINO</span>
-          <strong id="prevTipoVino">—</strong>
+
+          <span>
+            TIPO DE VINO
+          </span>
+
+          <strong id="prevTipoVino">
+            —
+          </strong>
+
         </div>
 
 
+        <!-- CALIFICACIÓN -->
+
         <div class="bloque-cartel">
-          <span>CALIFICACIÓN</span>
-          <strong id="prevCalificacion">—</strong>
+
+          <span>
+            CALIFICACIÓN
+          </span>
+
+          <strong id="prevCalificacion">
+            —
+          </strong>
+
         </div>
 
 
+        <!-- VARIEDAD -->
+
         <div class="bloque-cartel">
-          <span>VARIEDAD DE UVA</span>
-          <strong id="prevVariedad">—</strong>
+
+          <span>
+            VARIEDAD DE UVA
+          </span>
+
+          <strong id="prevVariedad">
+            —
+          </strong>
+
         </div>
 
       </article>
@@ -239,24 +481,35 @@
 
     <section class="panel">
 
+
       <div class="encabezado-lista">
 
         <div>
-          <h2>Mis Carteles</h2>
+
+          <h2>
+            Mis Carteles
+          </h2>
+
 
           <p
             id="contadorCarteles"
             class="ayuda">
+
             0 carteles
+
           </p>
+
         </div>
 
       </div>
 
 
-      <!-- BOTONES DE SELECCIÓN -->
+      <!-- =================================================
+           BOTONES DE SELECCIÓN
+      ================================================== -->
 
       <div class="controles-seleccion">
+
 
         <label class="seleccion-todos">
 
@@ -264,7 +517,9 @@
             type="checkbox"
             id="seleccionarTodos">
 
-          <span>Seleccionar todos</span>
+          <span>
+            Seleccionar todos
+          </span>
 
         </label>
 
@@ -273,21 +528,28 @@
           type="button"
           id="botonDeseleccionar"
           class="boton pequeno secundario">
+
           Deseleccionar
+
         </button>
 
       </div>
 
 
-      <!-- ACCIONES SOBRE SELECCIONADOS -->
+      <!-- =================================================
+           ACCIONES SOBRE SELECCIONADOS
+      ================================================== -->
 
       <div class="acciones-lote">
+
 
         <button
           type="button"
           id="botonEliminarSeleccionados"
           class="boton peligro">
+
           Eliminar seleccionados
+
         </button>
 
 
@@ -295,29 +557,42 @@
           type="button"
           id="botonImprimirSeleccionados"
           class="boton principal">
+
           Imprimir seleccionados
+
         </button>
 
       </div>
 
 
+      <!-- CONTADOR -->
+
       <p
         id="contadorSeleccionados"
         class="contador-seleccionados">
+
         0 seleccionados
+
       </p>
 
+
+      <!-- MENSAJE CUANDO NO HAY CARTELES -->
 
       <p
         id="mensajeVacio"
         class="vacio">
+
         No hay carteles guardados.
+
       </p>
 
+
+      <!-- LISTA -->
 
       <div
         id="listaCarteles"
         class="lista-carteles">
+
       </div>
 
     </section>
@@ -325,8 +600,14 @@
   </main>
 
 
+  <!-- =====================================================
+       PIE
+  ====================================================== -->
+
   <footer class="pie">
+
     Los carteles se guardan en este dispositivo.
+
   </footer>
 
 </div>
@@ -339,7 +620,9 @@
 <section
   id="zonaImpresion"
   aria-hidden="true">
+
 </section>
+
 
 </body>
 </html>

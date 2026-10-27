@@ -1,4 +1,7 @@
-"use strict";
+/* =========================================================
+   CARTELES DE BODEGA
+   SCRIPT COMPLETO
+========================================================= */
 
 
 /* =========================================================
@@ -9,148 +12,240 @@ const CLAVE_STORAGE = "cartelesBodega_v4";
 
 
 /* =========================================================
-   ELEMENTOS
+   VARIABLES PRINCIPALES
 ========================================================= */
 
-const formulario = document.getElementById("formularioCartel");
+let carteles = [];
+let idEnEdicion = null;
+let seleccionados = new Set();
 
-const deposito = document.getElementById("deposito");
-const litros = document.getElementById("litros");
-const anada = document.getElementById("anada");
-const tipoVino = document.getElementById("tipoVino");
-const calificacion = document.getElementById("calificacion");
-const variedad = document.getElementById("variedad");
 
-const botonGuardar = document.getElementById("botonGuardar");
-const botonNuevo = document.getElementById("botonNuevo");
+/* =========================================================
+   ELEMENTOS DEL DOM
+========================================================= */
+
+const formularioCartel =
+  document.getElementById("formularioCartel");
 
 const tituloFormulario =
   document.getElementById("tituloFormulario");
+
+const botonGuardar =
+  document.getElementById("botonGuardar");
+
+const botonNuevo =
+  document.getElementById("botonNuevo");
+
+
+/* ---------------------------------------------------------
+   UBICACIÓN
+--------------------------------------------------------- */
+
+const tipoUbicacion =
+  document.getElementById("tipoUbicacion");
+
+const campoDeposito =
+  document.getElementById("campoDeposito");
+
+const campoBarricas =
+  document.getElementById("campoBarricas");
+
+const deposito =
+  document.getElementById("deposito");
+
+const textoBarricas =
+  document.getElementById("textoBarricas");
+
+
+/* ---------------------------------------------------------
+   RESTO DE CAMPOS
+--------------------------------------------------------- */
+
+const litros =
+  document.getElementById("litros");
+
+const anada =
+  document.getElementById("anada");
+
+const tipoVino =
+  document.getElementById("tipoVino");
+
+const calificacion =
+  document.getElementById("calificacion");
+
+const variedad =
+  document.getElementById("variedad");
+
+
+/* ---------------------------------------------------------
+   MENSAJES
+--------------------------------------------------------- */
 
 const mensajeEstado =
   document.getElementById("mensajeEstado");
 
 
+/* ---------------------------------------------------------
+   VISTA PREVIA
+--------------------------------------------------------- */
+
+const prevEtiquetaUbicacion =
+  document.getElementById(
+    "prevEtiquetaUbicacion"
+  );
+
+const prevDeposito =
+  document.getElementById("prevDeposito");
+
+const prevLitros =
+  document.getElementById("prevLitros");
+
+const prevAnada =
+  document.getElementById("prevAnada");
+
+const prevTipoVino =
+  document.getElementById("prevTipoVino");
+
+const prevCalificacion =
+  document.getElementById("prevCalificacion");
+
+const prevVariedad =
+  document.getElementById("prevVariedad");
+
+
+/* ---------------------------------------------------------
+   IMPORTACIÓN
+--------------------------------------------------------- */
+
 const archivoExcel =
   document.getElementById("archivoExcel");
 
 const botonImportarExcel =
-  document.getElementById("botonImportarExcel");
+  document.getElementById(
+    "botonImportarExcel"
+  );
 
+
+/* ---------------------------------------------------------
+   LISTA
+--------------------------------------------------------- */
 
 const listaCarteles =
   document.getElementById("listaCarteles");
 
-const contadorCarteles =
-  document.getElementById("contadorCarteles");
-
 const mensajeVacio =
   document.getElementById("mensajeVacio");
 
-
-const seleccionarTodos =
-  document.getElementById("seleccionarTodos");
-
-const botonDeseleccionar =
-  document.getElementById("botonDeseleccionar");
-
-const botonEliminarSeleccionados =
-  document.getElementById("botonEliminarSeleccionados");
-
-const botonImprimirSeleccionados =
-  document.getElementById("botonImprimirSeleccionados");
-
-const contadorSeleccionados =
-  document.getElementById("contadorSeleccionados");
-
-
-const zonaImpresion =
-  document.getElementById("zonaImpresion");
-
-
-/* =========================================================
-   VARIABLES
-========================================================= */
-
-let carteles = cargarCarteles();
-
-let idEnEdicion = null;
-
-let seleccionados = new Set();
-
-
-/* =========================================================
-   ID
-========================================================= */
-
-function generarId() {
-
-  if (
-    typeof crypto !== "undefined" &&
-    typeof crypto.randomUUID === "function"
-  ) {
-
-    return crypto.randomUUID();
-
-  }
-
-  return (
-    Date.now().toString(36) +
-    "-" +
-    Math.random().toString(36).substring(2)
+const contadorCarteles =
+  document.getElementById(
+    "contadorCarteles"
   );
 
-}
+
+/* ---------------------------------------------------------
+   SELECCIÓN
+--------------------------------------------------------- */
+
+const seleccionarTodos =
+  document.getElementById(
+    "seleccionarTodos"
+  );
+
+const botonDeseleccionar =
+  document.getElementById(
+    "botonDeseleccionar"
+  );
+
+const contadorSeleccionados =
+  document.getElementById(
+    "contadorSeleccionados"
+  );
+
+const botonEliminarSeleccionados =
+  document.getElementById(
+    "botonEliminarSeleccionados"
+  );
+
+const botonImprimirSeleccionados =
+  document.getElementById(
+    "botonImprimirSeleccionados"
+  );
+
+
+/* ---------------------------------------------------------
+   IMPRESIÓN
+--------------------------------------------------------- */
+
+const zonaImpresion =
+  document.getElementById(
+    "zonaImpresion"
+  );
 
 
 /* =========================================================
-   MENSAJES
+   INICIO
 ========================================================= */
 
-function mostrarMensaje(texto, tipo = "") {
+cargarCarteles();
 
-  mensajeEstado.textContent = texto;
+normalizarCartelesAntiguos();
 
-  mensajeEstado.className = "mensaje";
+actualizarCamposUbicacion();
 
-  if (tipo) {
-    mensajeEstado.classList.add(tipo);
-  }
+actualizarVistaPrevia();
 
-}
+dibujarLista();
+
+actualizarControles();
 
 
 /* =========================================================
-   STORAGE
+   LOCALSTORAGE
 ========================================================= */
 
 function cargarCarteles() {
 
   try {
 
+    const guardados =
+      localStorage.getItem(
+        CLAVE_STORAGE
+      );
+
+    if (!guardados) {
+
+      carteles = [];
+
+      return;
+    }
+
     const datos =
-      localStorage.getItem(CLAVE_STORAGE);
+      JSON.parse(guardados);
 
-    if (!datos) {
-      return [];
+    if (Array.isArray(datos)) {
+
+      carteles = datos;
+
+    } else {
+
+      carteles = [];
+
     }
-
-    const resultado = JSON.parse(datos);
-
-    if (!Array.isArray(resultado)) {
-      return [];
-    }
-
-    return resultado;
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "Error cargando carteles:",
+      error
+    );
 
-    return [];
+    carteles = [];
 
+    mostrarMensaje(
+      "No se pudieron cargar los carteles guardados.",
+      "error"
+    );
   }
-
 }
 
 
@@ -158,22 +253,10 @@ function guardarCarteles() {
 
   try {
 
-    const datos =
-      JSON.stringify(carteles);
-
     localStorage.setItem(
       CLAVE_STORAGE,
-      datos
+      JSON.stringify(carteles)
     );
-
-    const comprobacion =
-      localStorage.getItem(CLAVE_STORAGE);
-
-    if (comprobacion !== datos) {
-      throw new Error(
-        "No se pudo comprobar el almacenamiento."
-      );
-    }
 
     return true;
 
@@ -185,11 +268,121 @@ function guardarCarteles() {
     );
 
     mostrarMensaje(
-      "No se han podido guardar los carteles en este navegador.",
+      "No se pudieron guardar los carteles.",
       "error"
     );
 
     return false;
+  }
+}
+
+
+/* =========================================================
+   COMPATIBILIDAD CON CARTELES ANTIGUOS
+========================================================= */
+
+function normalizarCartelesAntiguos() {
+
+  carteles =
+    carteles.map(
+      cartel => {
+
+        const nuevo =
+          {
+            ...cartel
+          };
+
+
+        /*
+          Los carteles antiguos solamente tenían
+          "deposito".
+
+          Ahora añadimos "tipoUbicacion".
+        */
+
+        nuevo.tipoUbicacion =
+          obtenerTipoUbicacion(
+            nuevo
+          );
+
+
+        /*
+          Convertimos tipos antiguos a mayúsculas.
+        */
+
+        nuevo.tipoVino =
+          String(
+            nuevo.tipoVino || ""
+          ).toUpperCase();
+
+
+        return nuevo;
+
+      }
+    );
+}
+
+
+/* =========================================================
+   ID
+========================================================= */
+
+function generarId() {
+
+  return (
+    Date.now().toString(36) +
+    Math.random()
+      .toString(36)
+      .substring(2, 9)
+  );
+
+}
+
+
+/* =========================================================
+   MENSAJES
+========================================================= */
+
+function mostrarMensaje(
+  texto,
+  tipo = ""
+) {
+
+  mensajeEstado.textContent =
+    texto;
+
+  mensajeEstado.className =
+    "mensaje";
+
+  if (tipo) {
+
+    mensajeEstado.classList.add(
+      tipo
+    );
+
+  }
+
+  if (texto) {
+
+    setTimeout(
+      () => {
+
+        if (
+          mensajeEstado.textContent ===
+          texto
+        ) {
+
+          mensajeEstado.textContent =
+            "";
+
+          mensajeEstado.className =
+            "mensaje";
+
+        }
+
+      },
+      4000
+    );
 
   }
 
@@ -197,31 +390,286 @@ function guardarCarteles() {
 
 
 /* =========================================================
-   DATOS DEL FORMULARIO
+   TIPO DE UBICACIÓN
+========================================================= */
+
+function obtenerTipoUbicacion(
+  cartel
+) {
+
+  if (
+    cartel &&
+    cartel.tipoUbicacion
+  ) {
+
+    return cartel.tipoUbicacion ===
+      "barricas"
+      ? "barricas"
+      : "deposito";
+
+  }
+
+
+  const texto =
+    normalizarTexto(
+      cartel?.deposito || ""
+    );
+
+
+  if (
+    texto === "barricas" ||
+    texto === "barrica" ||
+    texto.includes("barrica")
+  ) {
+
+    return "barricas";
+
+  }
+
+
+  return "deposito";
+}
+
+
+/* =========================================================
+   NORMALIZAR DEPÓSITO
+========================================================= */
+
+function normalizarValorDeposito(
+  valor
+) {
+
+  const texto =
+    String(
+      valor ?? ""
+    ).trim();
+
+
+  const normalizado =
+    normalizarTexto(
+      texto
+    );
+
+
+  if (
+    normalizado === "aux 1" ||
+    normalizado === "aux1" ||
+    normalizado === "auxiliar 1"
+  ) {
+
+    return "AUXILIAR 1";
+
+  }
+
+
+  if (
+    normalizado === "aux 2" ||
+    normalizado === "aux2" ||
+    normalizado === "auxiliar 2"
+  ) {
+
+    return "AUXILIAR 2";
+
+  }
+
+
+  const numero =
+    Number(texto);
+
+
+  if (
+    Number.isInteger(numero) &&
+    numero >= 1 &&
+    numero <= 23
+  ) {
+
+    return String(numero);
+
+  }
+
+
+  return texto;
+}
+
+
+/* =========================================================
+   MOSTRAR / OCULTAR DEPÓSITO O BARRICAS
+========================================================= */
+
+function actualizarCamposUbicacion() {
+
+  const esBarricas =
+    tipoUbicacion.value ===
+    "barricas";
+
+
+  if (campoDeposito) {
+
+    campoDeposito.hidden =
+      esBarricas;
+
+  }
+
+
+  if (campoBarricas) {
+
+    campoBarricas.hidden =
+      !esBarricas;
+
+  }
+
+
+  if (deposito) {
+
+    deposito.disabled =
+      esBarricas;
+
+    deposito.required =
+      !esBarricas;
+
+  }
+
+
+  if (textoBarricas) {
+
+    textoBarricas.disabled =
+      !esBarricas;
+
+    textoBarricas.required =
+      esBarricas;
+
+  }
+
+
+  /*
+    Cuando se selecciona BARRICAS
+    ponemos BARRICAS por defecto.
+  */
+
+  if (
+    esBarricas &&
+    textoBarricas &&
+    !textoBarricas.value.trim()
+  ) {
+
+    textoBarricas.value =
+      "BARRICAS";
+
+  }
+
+
+  actualizarVistaPrevia();
+}
+
+
+/* =========================================================
+   CAMBIO DE UBICACIÓN
+========================================================= */
+
+tipoUbicacion.addEventListener(
+  "change",
+  function () {
+
+    actualizarCamposUbicacion();
+
+  }
+);
+
+
+/* =========================================================
+   CAMBIOS EN EL FORMULARIO
+========================================================= */
+
+[
+  deposito,
+  textoBarricas,
+  litros,
+  anada,
+  tipoVino,
+  calificacion,
+  variedad
+].forEach(
+  elemento => {
+
+    if (!elemento) {
+      return;
+    }
+
+    elemento.addEventListener(
+      "input",
+      actualizarVistaPrevia
+    );
+
+    elemento.addEventListener(
+      "change",
+      actualizarVistaPrevia
+    );
+
+  }
+);
+
+
+/* =========================================================
+   OBTENER DATOS DEL FORMULARIO
 ========================================================= */
 
 function obtenerDatosFormulario() {
 
+  const tipo =
+    tipoUbicacion.value ===
+    "barricas"
+      ? "barricas"
+      : "deposito";
+
+
+  const valorUbicacion =
+    tipo === "barricas"
+      ? textoBarricas.value.trim()
+      : deposito.value.trim();
+
+
   return {
 
-    deposito: deposito.value.trim(),
+    tipoUbicacion:
+      tipo,
 
-    litros: litros.value.trim(),
+    /*
+      Conservamos "deposito"
+      para mantener compatibilidad
+      con los carteles antiguos.
+    */
 
-    anada: anada.value.trim(),
+    deposito:
+      valorUbicacion,
 
-    tipoVino: tipoVino.value,
+    litros:
+      litros.value.trim(),
 
-    calificacion: calificacion.value,
+    anada:
+      anada.value.trim(),
 
-    variedad: variedad.value.trim()
+    tipoVino:
+      String(
+        tipoVino.value || ""
+      ).toUpperCase(),
+
+    calificacion:
+      calificacion.value,
+
+    variedad:
+      variedad.value.trim()
 
   };
-
 }
 
 
-function validarDatos(datos) {
+/* =========================================================
+   VALIDAR DATOS
+========================================================= */
+
+function validarDatos(
+  datos
+) {
 
   if (
     !datos.deposito ||
@@ -238,38 +686,50 @@ function validarDatos(datos) {
     );
 
     return false;
-
   }
 
-  return true;
 
+  return true;
 }
 
 
 /* =========================================================
-   GUARDAR CARTEL MANUAL
+   GUARDAR / EDITAR CARTEL
 ========================================================= */
 
-formulario.addEventListener(
+formularioCartel.addEventListener(
   "submit",
   function (evento) {
 
     evento.preventDefault();
 
+
     const datos =
       obtenerDatosFormulario();
 
-    if (!validarDatos(datos)) {
+
+    if (
+      !validarDatos(datos)
+    ) {
+
       return;
+
     }
 
 
-    if (idEnEdicion !== null) {
+    /*
+      EDITAR
+    */
+
+    if (
+      idEnEdicion !== null
+    ) {
 
       const indice =
         carteles.findIndex(
           cartel =>
-            cartel.id === idEnEdicion
+            cartel.id ===
+            idEnEdicion
         );
 
 
@@ -285,17 +745,19 @@ formulario.addEventListener(
       }
 
 
-      carteles[indice] = {
-
-        ...carteles[indice],
-
-        ...datos
-
-      };
+      carteles[indice] =
+        {
+          ...carteles[indice],
+          ...datos
+        };
 
 
-      if (!guardarCarteles()) {
+      if (
+        !guardarCarteles()
+      ) {
+
         return;
+
       }
 
 
@@ -304,35 +766,50 @@ formulario.addEventListener(
         "exito"
       );
 
-    } else {
 
-      const nuevoCartel = {
+      cancelarEdicion();
 
-        id: generarId(),
+      dibujarLista();
+
+      return;
+    }
+
+
+    /*
+      CREAR NUEVO
+    */
+
+    const nuevoCartel =
+      {
+
+        id:
+          generarId(),
 
         ...datos
 
       };
 
 
-      carteles.push(nuevoCartel);
+    carteles.push(
+      nuevoCartel
+    );
 
 
-      if (!guardarCarteles()) {
+    if (
+      !guardarCarteles()
+    ) {
 
-        carteles.pop();
+      carteles.pop();
 
-        return;
-
-      }
-
-
-      mostrarMensaje(
-        "Cartel guardado correctamente.",
-        "exito"
-      );
+      return;
 
     }
+
+
+    mostrarMensaje(
+      "Cartel guardado correctamente.",
+      "exito"
+    );
 
 
     limpiarFormulario();
@@ -344,7 +821,7 @@ formulario.addEventListener(
 
 
 /* =========================================================
-   NUEVO / CANCELAR
+   BOTÓN NUEVO / CANCELAR
 ========================================================= */
 
 botonNuevo.addEventListener(
@@ -353,25 +830,56 @@ botonNuevo.addEventListener(
 
     limpiarFormulario();
 
-    mostrarMensaje("");
-
   }
 );
 
 
+/* =========================================================
+   LIMPIAR FORMULARIO
+========================================================= */
+
 function limpiarFormulario() {
 
-  formulario.reset();
+  formularioCartel.reset();
 
-  idEnEdicion = null;
+  idEnEdicion =
+    null;
+
 
   tituloFormulario.textContent =
-    "Crear cartel";
+    "Crear Cartel";
+
 
   botonGuardar.textContent =
     "Guardar Cartel";
 
+
+  tipoUbicacion.value =
+    "deposito";
+
+
+  deposito.value =
+    "";
+
+
+  textoBarricas.value =
+    "";
+
+
+  actualizarCamposUbicacion();
+
   actualizarVistaPrevia();
+
+}
+
+
+/* =========================================================
+   CANCELAR EDICIÓN
+========================================================= */
+
+function cancelarEdicion() {
+
+  limpiarFormulario();
 
 }
 
@@ -382,144 +890,61 @@ function limpiarFormulario() {
 
 function actualizarVistaPrevia() {
 
-  document.getElementById(
-    "prevDeposito"
-  ).textContent =
-    deposito.value.trim() || "—";
+  if (!prevDeposito) {
+    return;
+  }
 
 
-  document.getElementById(
-    "prevLitros"
-  ).textContent =
-    litros.value.trim() || "—";
+  const esBarricas =
+    tipoUbicacion.value ===
+    "barricas";
 
 
-  document.getElementById(
-    "prevAnada"
-  ).textContent =
-    anada.value.trim() || "—";
+  const etiqueta =
+    esBarricas
+      ? "BARRICAS"
+      : "DEPÓSITO";
 
 
-  document.getElementById(
-    "prevTipoVino"
-  ).textContent =
-    tipoVino.value || "—";
+  const valor =
+    esBarricas
+      ? textoBarricas.value.trim()
+      : deposito.value.trim();
 
 
-  document.getElementById(
-    "prevCalificacion"
-  ).textContent =
-    calificacion.value || "—";
+  prevEtiquetaUbicacion.textContent =
+    etiqueta;
 
 
-  document.getElementById(
-    "prevVariedad"
-  ).textContent =
-    variedad.value.trim() || "—";
-
-}
+  prevDeposito.textContent =
+    valor || "—";
 
 
-formulario.addEventListener(
-  "input",
-  actualizarVistaPrevia
-);
+  prevLitros.textContent =
+    litros.value.trim() ||
+    "—";
 
 
-formulario.addEventListener(
-  "change",
-  actualizarVistaPrevia
-);
+  prevAnada.textContent =
+    anada.value.trim() ||
+    "—";
 
 
-/* =========================================================
-   CREAR CARTEL PARA IMPRESIÓN
-========================================================= */
-
-function crearCartelVisual(cartel) {
-
-  const articulo =
-    document.createElement("article");
-
-  articulo.className = "cartel";
+  prevTipoVino.textContent =
+    String(
+      tipoVino.value || ""
+    ).toUpperCase() ||
+    "—";
 
 
-  const campos = [
-
-    [
-      "DEPÓSITO / BARRICAS",
-      cartel.deposito,
-      "bloque-deposito"
-    ],
-
-    [
-      "LITROS",
-      cartel.litros,
-      ""
-    ],
-
-    [
-      "AÑADA",
-      cartel.anada,
-      ""
-    ],
-
-    [
-      "TIPO DE VINO",
-      cartel.tipoVino,
-      ""
-    ],
-
-    [
-      "CALIFICACIÓN",
-      cartel.calificacion,
-      ""
-    ],
-
-    [
-      "VARIEDAD DE UVA",
-      cartel.variedad,
-      ""
-    ]
-
-  ];
+  prevCalificacion.textContent =
+    calificacion.value ||
+    "—";
 
 
-  campos.forEach(
-    ([titulo, valor, clase]) => {
-
-      const bloque =
-        document.createElement("div");
-
-      bloque.className =
-        "bloque-cartel" +
-        (clase ? " " + clase : "");
-
-
-      const etiqueta =
-        document.createElement("span");
-
-      etiqueta.textContent =
-        titulo;
-
-
-      const contenido =
-        document.createElement("strong");
-
-      contenido.textContent =
-        valor || "—";
-
-
-      bloque.appendChild(etiqueta);
-      bloque.appendChild(contenido);
-
-      articulo.appendChild(bloque);
-
-    }
-  );
-
-
-  return articulo;
+  prevVariedad.textContent =
+    variedad.value.trim() ||
+    "—";
 
 }
 
@@ -542,169 +967,32 @@ function dibujarLista() {
     );
 
 
-  mensajeVacio.hidden =
-    carteles.length > 0;
+  if (
+    carteles.length === 0
+  ) {
+
+    mensajeVacio.style.display =
+      "";
+
+    actualizarControles();
+
+    return;
+
+  }
+
+
+  mensajeVacio.style.display =
+    "none";
 
 
   carteles.forEach(
     cartel => {
 
-      const tarjeta =
-        document.createElement("article");
-
-      tarjeta.className =
-        "tarjeta-guardada";
-
-
-      /* CABECERA */
-
-      const filaTitulo =
-        document.createElement("div");
-
-      filaTitulo.className =
-        "fila-titulo";
-
-
-      const label =
-        document.createElement("label");
-
-      label.className =
-        "fila-seleccion";
-
-
-      const checkbox =
-        document.createElement("input");
-
-      checkbox.type =
-        "checkbox";
-
-      checkbox.checked =
-        seleccionados.has(cartel.id);
-
-      checkbox.dataset.id =
-        cartel.id;
-
-
-      label.appendChild(checkbox);
-
-
-      const titulo =
-        document.createElement("h3");
-
-      titulo.className =
-        "titulo-cartel";
-
-      titulo.textContent =
-        cartel.deposito;
-
-
-      filaTitulo.appendChild(label);
-      filaTitulo.appendChild(titulo);
-
-
-      tarjeta.appendChild(filaTitulo);
-
-
-      /* DETALLES */
-
-      const detalles =
-        document.createElement("div");
-
-      detalles.className =
-        "detalles-cartel";
-
-
-      agregarDetalle(
-        detalles,
-        "Litros",
-        cartel.litros
+      listaCarteles.appendChild(
+        crearElementoLista(
+          cartel
+        )
       );
-
-      agregarDetalle(
-        detalles,
-        "Añada",
-        cartel.anada
-      );
-
-      agregarDetalle(
-        detalles,
-        "Tipo de vino",
-        cartel.tipoVino
-      );
-
-      agregarDetalle(
-        detalles,
-        "Calificación",
-        cartel.calificacion
-      );
-
-      agregarDetalle(
-        detalles,
-        "Variedad de uva",
-        cartel.variedad
-      );
-
-
-      tarjeta.appendChild(detalles);
-
-
-      /* BOTONES */
-
-      const botones =
-        document.createElement("div");
-
-      botones.className =
-        "botones-tarjeta";
-
-
-      const editar =
-        crearBoton(
-          "Editar",
-          "secundario"
-        );
-
-      editar.dataset.accion =
-        "editar";
-
-      editar.dataset.id =
-        cartel.id;
-
-
-      const eliminar =
-        crearBoton(
-          "Eliminar",
-          "peligro"
-        );
-
-      eliminar.dataset.accion =
-        "eliminar";
-
-      eliminar.dataset.id =
-        cartel.id;
-
-
-      const imprimir =
-        crearBoton(
-          "Imprimir",
-          "principal"
-        );
-
-      imprimir.dataset.accion =
-        "imprimir";
-
-      imprimir.dataset.id =
-        cartel.id;
-
-
-      botones.appendChild(editar);
-      botones.appendChild(eliminar);
-      botones.appendChild(imprimir);
-
-
-      tarjeta.appendChild(botones);
-
-
-      listaCarteles.appendChild(tarjeta);
 
     }
   );
@@ -715,171 +1003,380 @@ function dibujarLista() {
 }
 
 
-function agregarDetalle(
-  contenedor,
-  nombre,
-  valor
-) {
-
-  const p =
-    document.createElement("p");
-
-  const strong =
-    document.createElement("strong");
-
-  strong.textContent =
-    nombre + ": ";
-
-
-  p.appendChild(strong);
-
-  p.appendChild(
-    document.createTextNode(
-      valor || "—"
-    )
-  );
-
-
-  contenedor.appendChild(p);
-
-}
-
-
-function crearBoton(
-  texto,
-  clase
-) {
-
-  const boton =
-    document.createElement("button");
-
-  boton.type =
-    "button";
-
-  boton.className =
-    "boton " + clase;
-
-  boton.textContent =
-    texto;
-
-  return boton;
-
-}
-
-
 /* =========================================================
-   EDITAR / ELIMINAR / IMPRIMIR INDIVIDUAL
+   CREAR ELEMENTO DE LISTA
 ========================================================= */
 
-listaCarteles.addEventListener(
-  "click",
-  function (evento) {
+function crearElementoLista(
+  cartel
+) {
 
-    const boton =
-      evento.target.closest(
-        "button[data-accion]"
-      );
+  const contenedor =
+    document.createElement(
+      "article"
+    );
 
-
-    if (!boton) {
-      return;
-    }
+  contenedor.className =
+    "item-cartel";
 
 
-    const id =
-      boton.dataset.id;
+  /*
+    CABECERA
+  */
 
-    const accion =
-      boton.dataset.accion;
+  const cabecera =
+    document.createElement(
+      "div"
+    );
 
-
-    if (accion === "editar") {
-
-      editarCartel(id);
-
-    }
-
-
-    if (accion === "eliminar") {
-
-      eliminarCartel(id);
-
-    }
+  cabecera.className =
+    "cabecera-item";
 
 
-    if (accion === "imprimir") {
+  /*
+    CHECKBOX
+  */
 
-      const cartel =
-        carteles.find(
-          elemento =>
-            elemento.id === id
+  const etiqueta =
+    document.createElement(
+      "label"
+    );
+
+  etiqueta.className =
+    "seleccion-item";
+
+
+  const checkbox =
+    document.createElement(
+      "input"
+    );
+
+  checkbox.type =
+    "checkbox";
+
+  checkbox.checked =
+    seleccionados.has(
+      cartel.id
+    );
+
+
+  checkbox.addEventListener(
+    "change",
+    function () {
+
+      if (checkbox.checked) {
+
+        seleccionados.add(
+          cartel.id
         );
 
+      } else {
 
-      if (cartel) {
-
-        imprimirCarteles([
-          cartel
-        ]);
+        seleccionados.delete(
+          cartel.id
+        );
 
       }
 
+
+      actualizarControles();
+
     }
-
-  }
-);
+  );
 
 
-/* =========================================================
-   CHECKBOX INDIVIDUAL
-========================================================= */
+  etiqueta.appendChild(
+    checkbox
+  );
 
-listaCarteles.addEventListener(
-  "change",
-  function (evento) {
 
-    const checkbox =
-      evento.target.closest(
-        "input[type='checkbox']"
+  /*
+    TÍTULO
+  */
+
+  const titulo =
+    document.createElement(
+      "strong"
+    );
+
+
+  const tipoUbicacionCartel =
+    obtenerTipoUbicacion(
+      cartel
+    );
+
+
+  const etiquetaUbicacion =
+    tipoUbicacionCartel ===
+    "barricas"
+      ? "BARRICAS"
+      : "DEPÓSITO";
+
+
+  titulo.textContent =
+    etiquetaUbicacion +
+    ": " +
+    (
+      cartel.deposito ||
+      "Sin ubicación"
+    );
+
+
+  etiqueta.appendChild(
+    titulo
+  );
+
+
+  cabecera.appendChild(
+    etiqueta
+  );
+
+
+  /*
+    DETALLES
+  */
+
+  const detalles =
+    document.createElement(
+      "div"
+    );
+
+  detalles.className =
+    "detalles-cartel";
+
+
+  agregarDetalle(
+    detalles,
+    "Litros",
+    cartel.litros
+  );
+
+
+  agregarDetalle(
+    detalles,
+    "Añada",
+    cartel.anada
+  );
+
+
+  agregarDetalle(
+    detalles,
+    "Tipo",
+    String(
+      cartel.tipoVino || ""
+    ).toUpperCase()
+  );
+
+
+  agregarDetalle(
+    detalles,
+    "Calificación",
+    cartel.calificacion
+  );
+
+
+  agregarDetalle(
+    detalles,
+    "Uva",
+    cartel.variedad
+  );
+
+
+  /*
+    ACCIONES
+  */
+
+  const acciones =
+    document.createElement(
+      "div"
+    );
+
+  acciones.className =
+    "acciones-item";
+
+
+  /*
+    EDITAR
+  */
+
+  const botonEditar =
+    document.createElement(
+      "button"
+    );
+
+  botonEditar.type =
+    "button";
+
+  botonEditar.className =
+    "boton secundario";
+
+  botonEditar.textContent =
+    "Editar";
+
+
+  botonEditar.addEventListener(
+    "click",
+    function () {
+
+      editarCartel(
+        cartel.id
       );
 
-
-    if (!checkbox) {
-      return;
     }
+  );
 
 
-    const id =
-      checkbox.dataset.id;
+  /*
+    ELIMINAR
+  */
+
+  const botonEliminar =
+    document.createElement(
+      "button"
+    );
+
+  botonEliminar.type =
+    "button";
+
+  botonEliminar.className =
+    "boton peligro";
+
+  botonEliminar.textContent =
+    "Eliminar";
 
 
-    if (!id) {
-      return;
+  botonEliminar.addEventListener(
+    "click",
+    function () {
+
+      eliminarCartel(
+        cartel.id
+      );
+
     }
+  );
 
 
-    if (checkbox.checked) {
+  /*
+    IMPRIMIR
+  */
 
-      seleccionados.add(id);
+  const botonImprimir =
+    document.createElement(
+      "button"
+    );
 
-    } else {
+  botonImprimir.type =
+    "button";
 
-      seleccionados.delete(id);
+  botonImprimir.className =
+    "boton principal";
+
+  botonImprimir.textContent =
+    "Imprimir";
+
+
+  botonImprimir.addEventListener(
+    "click",
+    function () {
+
+      imprimirCarteles(
+        [cartel]
+      );
 
     }
+  );
 
 
-    actualizarControles();
+  acciones.appendChild(
+    botonEditar
+  );
 
-  }
-);
+  acciones.appendChild(
+    botonEliminar
+  );
+
+  acciones.appendChild(
+    botonImprimir
+  );
+
+
+  contenedor.appendChild(
+    cabecera
+  );
+
+  contenedor.appendChild(
+    detalles
+  );
+
+  contenedor.appendChild(
+    acciones
+  );
+
+
+  return contenedor;
+}
 
 
 /* =========================================================
-   EDITAR
+   AGREGAR DETALLE
 ========================================================= */
 
-function editarCartel(id) {
+function agregarDetalle(
+  contenedor,
+  etiqueta,
+  valor
+) {
+
+  const linea =
+    document.createElement(
+      "div"
+    );
+
+  linea.className =
+    "detalle";
+
+
+  const nombre =
+    document.createElement(
+      "span"
+    );
+
+  nombre.textContent =
+    etiqueta;
+
+
+  const contenido =
+    document.createElement(
+      "strong"
+    );
+
+  contenido.textContent =
+    valor || "—";
+
+
+  linea.appendChild(
+    nombre
+  );
+
+  linea.appendChild(
+    contenido
+  );
+
+
+  contenedor.appendChild(
+    linea
+  );
+}
+
+
+/* =========================================================
+   EDITAR CARTEL
+========================================================= */
+
+function editarCartel(
+  id
+) {
 
   const cartel =
     carteles.find(
@@ -889,31 +1386,19 @@ function editarCartel(id) {
 
 
   if (!cartel) {
+
+    mostrarMensaje(
+      "No se encontró el cartel.",
+      "error"
+    );
+
     return;
+
   }
 
 
   idEnEdicion =
-    cartel.id;
-
-
-  deposito.value =
-    cartel.deposito;
-
-  litros.value =
-    cartel.litros;
-
-  anada.value =
-    cartel.anada;
-
-  tipoVino.value =
-    cartel.tipoVino;
-
-  calificacion.value =
-    cartel.calificacion;
-
-  variedad.value =
-    cartel.variedad;
+    id;
 
 
   tituloFormulario.textContent =
@@ -922,6 +1407,67 @@ function editarCartel(id) {
 
   botonGuardar.textContent =
     "Guardar Cambios";
+
+
+  const tipo =
+    obtenerTipoUbicacion(
+      cartel
+    );
+
+
+  tipoUbicacion.value =
+    tipo;
+
+
+  if (
+    tipo === "barricas"
+  ) {
+
+    textoBarricas.value =
+      cartel.deposito ||
+      "BARRICAS";
+
+
+    deposito.value =
+      "";
+
+  } else {
+
+    deposito.value =
+      normalizarValorDeposito(
+        cartel.deposito
+      );
+
+
+    textoBarricas.value =
+      "";
+
+  }
+
+
+  actualizarCamposUbicacion();
+
+
+  litros.value =
+    cartel.litros || "";
+
+
+  anada.value =
+    cartel.anada || "";
+
+
+  tipoVino.value =
+    String(
+      cartel.tipoVino || ""
+    ).toUpperCase();
+
+
+  calificacion.value =
+    cartel.calificacion || "";
+
+
+  variedad.value =
+    cartel.variedad || "";
 
 
   actualizarVistaPrevia();
@@ -936,10 +1482,12 @@ function editarCartel(id) {
 
 
 /* =========================================================
-   ELIMINAR INDIVIDUAL
+   ELIMINAR UN CARTEL
 ========================================================= */
 
-function eliminarCartel(id) {
+function eliminarCartel(
+  id
+) {
 
   const cartel =
     carteles.find(
@@ -955,9 +1503,7 @@ function eliminarCartel(id) {
 
   const confirmar =
     confirm(
-      "¿Quieres eliminar el cartel de " +
-      cartel.deposito +
-      "?"
+      "¿Quieres eliminar este cartel?"
     );
 
 
@@ -977,7 +1523,14 @@ function eliminarCartel(id) {
     );
 
 
-  if (!guardarCarteles()) {
+  seleccionados.delete(
+    id
+  );
+
+
+  if (
+    !guardarCarteles()
+  ) {
 
     carteles =
       anteriores;
@@ -987,15 +1540,17 @@ function eliminarCartel(id) {
   }
 
 
-  seleccionados.delete(id);
+  if (
+    idEnEdicion === id
+  ) {
 
-
-  if (idEnEdicion === id) {
     limpiarFormulario();
+
   }
 
 
   dibujarLista();
+
 
   mostrarMensaje(
     "Cartel eliminado.",
@@ -1013,7 +1568,9 @@ seleccionarTodos.addEventListener(
   "change",
   function () {
 
-    if (seleccionarTodos.checked) {
+    if (
+      seleccionarTodos.checked
+    ) {
 
       seleccionados =
         new Set(
@@ -1073,12 +1630,14 @@ function actualizarControles() {
 
   seleccionarTodos.checked =
     carteles.length > 0 &&
-    cantidad === carteles.length;
+    cantidad ===
+      carteles.length;
 
 
   seleccionarTodos.indeterminate =
     cantidad > 0 &&
-    cantidad < carteles.length;
+    cantidad <
+      carteles.length;
 
 
   botonEliminarSeleccionados.disabled =
@@ -1103,7 +1662,9 @@ botonEliminarSeleccionados.addEventListener(
   "click",
   function () {
 
-    if (seleccionados.size === 0) {
+    if (
+      seleccionados.size === 0
+    ) {
 
       mostrarMensaje(
         "No hay carteles seleccionados.",
@@ -1111,7 +1672,6 @@ botonEliminarSeleccionados.addEventListener(
       );
 
       return;
-
     }
 
 
@@ -1141,7 +1701,9 @@ botonEliminarSeleccionados.addEventListener(
       );
 
 
-    if (!guardarCarteles()) {
+    if (
+      !guardarCarteles()
+    ) {
 
       carteles =
         anteriores;
@@ -1152,6 +1714,7 @@ botonEliminarSeleccionados.addEventListener(
 
 
     seleccionados.clear();
+
 
     dibujarLista();
 
@@ -1182,7 +1745,9 @@ botonImprimirSeleccionados.addEventListener(
       );
 
 
-    if (paraImprimir.length === 0) {
+    if (
+      paraImprimir.length === 0
+    ) {
 
       mostrarMensaje(
         "No hay carteles seleccionados.",
@@ -1190,7 +1755,6 @@ botonImprimirSeleccionados.addEventListener(
       );
 
       return;
-
     }
 
 
@@ -1200,6 +1764,186 @@ botonImprimirSeleccionados.addEventListener(
 
   }
 );
+
+
+
+/* =========================================================
+   CREAR CARTEL PARA IMPRESIÓN
+========================================================= */
+
+function crearCartelVisual(cartel) {
+
+  const cartelElemento = document.createElement("article");
+
+  cartelElemento.className = "cartel cartel-impresion";
+
+  const tipoUbicacionCartel = obtenerTipoUbicacion(cartel);
+
+  const etiquetaUbicacion =
+    tipoUbicacionCartel === "barricas"
+      ? "BARRICAS:"
+      : "DEPÓSITO:";
+
+  const bloques = [
+    [
+      etiquetaUbicacion,
+      cartel.deposito,
+      "bloque-deposito"
+    ],
+    [
+      "LITROS:",
+      cartel.litros,
+      ""
+    ],
+    [
+      "AÑADA:",
+      cartel.anada,
+      ""
+    ],
+    [
+      "TIPO DE VINO:",
+      String(cartel.tipoVino || "").toUpperCase(),
+      ""
+    ],
+    [
+      "CALIFICACIÓN:",
+      cartel.calificacion,
+      ""
+    ],
+    [
+      "VARIEDAD DE UVA:",
+      cartel.variedad,
+      "bloque-variedad"
+    ]
+  ];
+
+  bloques.forEach(datos => {
+
+    const bloque = document.createElement("div");
+    bloque.className = "bloque-cartel";
+
+    if (datos[2]) {
+      bloque.classList.add(datos[2]);
+    }
+
+    const etiqueta = document.createElement("span");
+    etiqueta.textContent = datos[0];
+
+    const valor = document.createElement("strong");
+    valor.textContent = datos[1] || "—";
+
+    if (datos[0] === "VARIEDAD DE UVA:") {
+      valor.classList.add("valor-variedad");
+    }
+
+    bloque.appendChild(etiqueta);
+    bloque.appendChild(valor);
+
+    cartelElemento.appendChild(bloque);
+  });
+
+  return cartelElemento;
+}
+
+
+
+
+
+
+/* =========================================================
+   AJUSTAR VARIEDAD DE UVA A UNA SOLA FILA
+========================================================= */
+
+function ajustarVariedadesAntesDeImprimir() {
+
+  const variedades = zonaImpresion.querySelectorAll(
+    ".bloque-variedad .valor-variedad"
+  );
+
+  // Ancho de seguridad para el contenido del cartel A4.
+  // Se deja margen para los bordes y el relleno.
+  const anchoDisponible = 165 * 96 / 25.4;
+
+  const lienzo = document.createElement("canvas");
+  const contexto = lienzo.getContext("2d");
+
+  variedades.forEach(valor => {
+
+    const estilo = window.getComputedStyle(valor);
+
+    const peso = estilo.fontWeight || "800";
+    const familia = estilo.fontFamily || "Arial, sans-serif";
+
+    valor.style.setProperty(
+      "white-space",
+      "nowrap",
+      "important"
+    );
+
+    valor.style.setProperty(
+      "overflow-wrap",
+      "normal",
+      "important"
+    );
+
+    valor.style.setProperty(
+      "word-break",
+      "normal",
+      "important"
+    );
+
+    valor.style.setProperty(
+      "display",
+      "block",
+      "important"
+    );
+
+    valor.style.setProperty(
+      "width",
+      "100%",
+      "important"
+    );
+
+    valor.style.setProperty(
+      "max-width",
+      "100%",
+      "important"
+    );
+
+    // Medir la variedad empezando por 34 puntos.
+    let tamano = 34;
+
+    contexto.font = `${peso} ${tamano}pt ${familia}`;
+
+    const anchoTexto = contexto.measureText(
+      valor.textContent || ""
+    ).width;
+
+    if (anchoTexto > 0) {
+
+      // Reducir proporcionalmente y dejar un 5 % de margen.
+      tamano = Math.min(
+        34,
+        34 * (anchoDisponible * 0.95 / anchoTexto)
+      );
+
+      // No permitir tamaños inferiores a 6 puntos.
+      tamano = Math.max(6, tamano);
+
+    }
+
+    valor.style.setProperty(
+      "font-size",
+      tamano + "pt",
+      "important"
+    );
+
+  });
+
+}
+
+
+
 
 
 /* =========================================================
@@ -1226,22 +1970,31 @@ function imprimirCarteles(
   );
 
 
-  requestAnimationFrame(
-    () => {
+  
+requestAnimationFrame(() => {
 
-      requestAnimationFrame(
-        () => {
+  requestAnimationFrame(() => {
 
-          window.print();
+    ajustarVariedadesAntesDeImprimir();
 
-        }
-      );
+    // Esperar a que se apliquen los tamaños antes de imprimir.
+    requestAnimationFrame(() => {
 
-    }
-  );
+      window.print();
+
+    });
+
+  });
+
+});
+
 
 }
 
+
+/* =========================================================
+   DESPUÉS DE IMPRIMIR
+========================================================= */
 
 window.addEventListener(
   "afterprint",
@@ -1261,7 +2014,8 @@ botonImportarExcel.addEventListener(
   "click",
   function () {
 
-    archivoExcel.value = "";
+    archivoExcel.value =
+      "";
 
     archivoExcel.click();
 
@@ -1301,7 +2055,8 @@ async function importarExcel(
   try {
 
     if (
-      typeof XLSX === "undefined"
+      typeof XLSX ===
+      "undefined"
     ) {
 
       throw new Error(
@@ -1343,8 +2098,6 @@ async function importarExcel(
 
     /*
       Utilizamos la primera hoja.
-      En el Excel enviado por el usuario
-      es la hoja DJR_3674.
     */
 
     const nombreHoja =
@@ -1352,13 +2105,10 @@ async function importarExcel(
 
 
     const hoja =
-      libro.Sheets[nombreHoja];
+      libro.Sheets[
+        nombreHoja
+      ];
 
-
-    /*
-      header: 1 devuelve cada fila
-      como un array.
-    */
 
     const filas =
       XLSX.utils.sheet_to_json(
@@ -1370,7 +2120,9 @@ async function importarExcel(
       );
 
 
-    if (!filas.length) {
+    if (
+      !filas.length
+    ) {
 
       throw new Error(
         "El Excel está vacío."
@@ -1385,7 +2137,9 @@ async function importarExcel(
       );
 
 
-    if (filaCabeceras === -1) {
+    if (
+      filaCabeceras === -1
+    ) {
 
       throw new Error(
         "No se encontraron las columnas necesarias del Excel."
@@ -1395,7 +2149,9 @@ async function importarExcel(
 
 
     const cabeceras =
-      filas[filaCabeceras];
+      filas[
+        filaCabeceras
+      ];
 
 
     const indices =
@@ -1424,14 +2180,13 @@ async function importarExcel(
       [];
 
 
-    /*
-      Comenzamos justo después
-      de la fila de cabeceras.
-    */
-
     for (
-      let i = filaCabeceras + 1;
-      i < filas.length;
+      let i =
+        filaCabeceras + 1;
+
+      i <
+        filas.length;
+
       i++
     ) {
 
@@ -1440,13 +2195,15 @@ async function importarExcel(
 
 
       /*
-        Ignoramos filas completamente vacías.
+        Ignoramos filas vacías.
       */
 
       if (
         fila.every(
           valor =>
-            String(valor ?? "").trim() === ""
+            String(
+              valor ?? ""
+            ).trim() === ""
         )
       ) {
 
@@ -1462,12 +2219,6 @@ async function importarExcel(
         );
 
 
-      /*
-        Si no hay ubicación ni
-        ningún dato relevante,
-        no creamos cartel.
-      */
-
       const tieneDatos =
         datos.deposito ||
         datos.litros ||
@@ -1478,14 +2229,14 @@ async function importarExcel(
 
 
       if (!tieneDatos) {
+
         continue;
+
       }
 
 
       /*
-        Si la fila tiene datos pero
-        falta algún campo obligatorio,
-        no la importamos.
+        Las filas incompletas no se importan.
       */
 
       if (
@@ -1504,7 +2255,8 @@ async function importarExcel(
 
       nuevos.push({
 
-        id: generarId(),
+        id:
+          generarId(),
 
         ...datos
 
@@ -1513,7 +2265,9 @@ async function importarExcel(
     }
 
 
-    if (nuevos.length === 0) {
+    if (
+      nuevos.length === 0
+    ) {
 
       throw new Error(
         "No se encontraron filas válidas para crear carteles."
@@ -1521,11 +2275,6 @@ async function importarExcel(
 
     }
 
-
-    /*
-      Añadimos los nuevos carteles
-      a los que ya existen.
-    */
 
     const anteriores =
       carteles;
@@ -1538,7 +2287,9 @@ async function importarExcel(
       ];
 
 
-    if (!guardarCarteles()) {
+    if (
+      !guardarCarteles()
+    ) {
 
       carteles =
         anteriores;
@@ -1549,6 +2300,7 @@ async function importarExcel(
 
 
     seleccionados.clear();
+
 
     dibujarLista();
 
@@ -1590,42 +2342,57 @@ function encontrarFilaCabeceras(
 
   for (
     let i = 0;
-    i < Math.min(filas.length, 20);
+    i <
+      Math.min(
+        filas.length,
+        20
+      );
     i++
   ) {
 
     const fila =
-      filas[i]
-        .map(
-          valor =>
-            normalizarTexto(
-              valor
-            )
-        );
+      filas[i].map(
+        valor =>
+          normalizarTexto(
+            valor
+          )
+      );
 
 
     const tieneAnada =
-      fila.includes("anada");
+      fila.includes(
+        "anada"
+      );
 
 
     const tieneColor =
-      fila.includes("color");
+      fila.includes(
+        "color"
+      );
 
 
     const tieneCalificacion =
-      fila.includes("calificacion");
+      fila.includes(
+        "calificacion"
+      );
 
 
     const tieneCantidad =
-      fila.includes("cantidad");
+      fila.includes(
+        "cantidad"
+      );
 
 
     const tieneUbicacion =
-      fila.includes("ubicacion");
+      fila.includes(
+        "ubicacion"
+      );
 
 
     const tieneVariedades =
-      fila.includes("variedades");
+      fila.includes(
+        "variedades"
+      );
 
 
     if (
@@ -1752,6 +2519,10 @@ function obtenerIndicesColumnas(
 }
 
 
+/* =========================================================
+   BUSCAR COLUMNA
+========================================================= */
+
 function buscarColumna(
   cabeceras,
   nombres
@@ -1767,8 +2538,12 @@ function buscarColumna(
       );
 
 
-    if (indice !== -1) {
+    if (
+      indice !== -1
+    ) {
+
       return indice;
+
     }
 
   }
@@ -1799,51 +2574,62 @@ function convertirFilaExcel(
 
 
   const anadaValor =
-    valor(indices.anada);
+    valor(
+      indices.anada
+    );
 
 
   const colorExcel =
-    valor(indices.color);
+    valor(
+      indices.color
+    );
 
 
   const calificacionExcel =
-    valor(indices.calificacion);
+    valor(
+      indices.calificacion
+    );
 
 
   const cantidad =
-    valor(indices.cantidad);
+    valor(
+      indices.cantidad
+    );
 
 
   const unidad =
-    valor(indices.unidad);
+    valor(
+      indices.unidad
+    );
 
 
   const ubicacion =
-    valor(indices.ubicacion);
+    valor(
+      indices.ubicacion
+    );
 
 
   const variedades =
-    valor(indices.variedades);
+    valor(
+      indices.variedades
+    );
+
+
+  const ubicacionInterpretada =
+    interpretarUbicacionExcel(
+      ubicacion
+    );
 
 
   return {
 
-    /*
-      Ubicación pasa a ser
-      DEPÓSITO / BARRICAS.
-    */
+    tipoUbicacion:
+      ubicacionInterpretada.tipoUbicacion,
+
 
     deposito:
-      ubicacion,
+      ubicacionInterpretada.deposito,
 
-
-    /*
-      Cantidad + unidad.
-
-      Ejemplo:
-      10500 + L
-      = 10500 L
-    */
 
     litros:
       cantidad +
@@ -1858,23 +2644,11 @@ function convertirFilaExcel(
       anadaValor,
 
 
-    /*
-      Convertimos el color del Excel
-      a uno de los cuatro valores
-      admitidos por la aplicación.
-    */
-
     tipoVino:
       convertirTipoVino(
         colorExcel
       ),
 
-
-    /*
-      Convertimos la calificación
-      del Excel a las opciones
-      de la aplicación.
-    */
 
     calificacion:
       convertirCalificacion(
@@ -1884,6 +2658,151 @@ function convertirFilaExcel(
 
     variedad:
       variedades
+
+  };
+
+}
+
+
+/* =========================================================
+   INTERPRETAR UBICACIÓN DEL EXCEL
+========================================================= */
+
+function interpretarUbicacionExcel(
+  valor
+) {
+
+  const texto =
+    String(
+      valor ?? ""
+    ).trim();
+
+
+  const normalizado =
+    normalizarTexto(
+      texto
+    );
+
+
+  /*
+    BARRICAS
+  */
+
+  if (
+    normalizado ===
+      "barricas" ||
+    normalizado ===
+      "barrica" ||
+    normalizado.includes(
+      "barrica"
+    )
+  ) {
+
+    return {
+
+      tipoUbicacion:
+        "barricas",
+
+      deposito:
+        "BARRICAS"
+
+    };
+
+  }
+
+
+  /*
+    AUXILIAR 1
+  */
+
+  if (
+    normalizado ===
+      "aux 1" ||
+    normalizado ===
+      "aux1" ||
+    normalizado ===
+      "auxiliar 1"
+  ) {
+
+    return {
+
+      tipoUbicacion:
+        "deposito",
+
+      deposito:
+        "AUXILIAR 1"
+
+    };
+
+  }
+
+
+  /*
+    AUXILIAR 2
+  */
+
+  if (
+    normalizado ===
+      "aux 2" ||
+    normalizado ===
+      "aux2" ||
+    normalizado ===
+      "auxiliar 2"
+  ) {
+
+    return {
+
+      tipoUbicacion:
+        "deposito",
+
+      deposito:
+        "AUXILIAR 2"
+
+    };
+
+  }
+
+
+  /*
+    DEPÓSITOS 1 - 23
+  */
+
+  const numero =
+    Number(texto);
+
+
+  if (
+    Number.isInteger(numero) &&
+    numero >= 1 &&
+    numero <= 23
+  ) {
+
+    return {
+
+      tipoUbicacion:
+        "deposito",
+
+      deposito:
+        String(numero)
+
+    };
+
+  }
+
+
+  /*
+    Si aparece algo diferente,
+    conservamos el texto para
+    no perder información.
+  */
+
+  return {
+
+    tipoUbicacion:
+      "deposito",
+
+    deposito:
+      texto
 
   };
 
@@ -1909,7 +2828,7 @@ function convertirTipoVino(
     texto.includes("tinto")
   ) {
 
-    return "Tinto";
+    return "TINTO";
 
   }
 
@@ -1919,22 +2838,22 @@ function convertirTipoVino(
     texto.includes("blanco")
   ) {
 
-    return "Blanco";
+    return "BLANCO";
 
   }
 
 
   if (
     texto === "rosado" ||
-    texto === "rosado"
+    texto.includes("rosado")
   ) {
 
-    return "Rosado";
+    return "ROSADO";
 
   }
 
 
-  return "Otros";
+  return "OTROS";
 
 }
 
@@ -1954,7 +2873,9 @@ function convertirCalificacion(
 
 
   if (
-    texto.includes("toro")
+    texto.includes(
+      "toro"
+    )
   ) {
 
     return "D.O. TORO";
@@ -1963,8 +2884,9 @@ function convertirCalificacion(
 
 
   if (
-    texto.includes("vtcyl") ||
-    texto.includes("vtcyl")
+    texto.includes(
+      "vtcyl"
+    )
   ) {
 
     return "VTCYL";
@@ -1973,8 +2895,12 @@ function convertirCalificacion(
 
 
   if (
-    texto.includes("mesa") ||
-    texto.includes("sin igp")
+    texto.includes(
+      "mesa"
+    ) ||
+    texto.includes(
+      "sin igp"
+    )
   ) {
 
     return "VINOS DE MESA (Sin IGP)";
@@ -1983,10 +2909,9 @@ function convertirCalificacion(
 
 
   /*
-    Si aparece una calificación
-    desconocida no inventamos otra.
-    La importación la tratará como
-    VINOS DE MESA.
+    Si la calificación no coincide
+    con ninguna de las anteriores,
+    usamos Vinos de Mesa.
   */
 
   return "VINOS DE MESA (Sin IGP)";
@@ -2007,21 +2932,12 @@ function normalizarTexto(
   )
     .trim()
     .toLowerCase()
-    .normalize("NFD")
+    .normalize(
+      "NFD"
+    )
     .replace(
       /[\u0300-\u036f]/g,
       ""
     );
 
 }
-
-
-/* =========================================================
-   INICIO
-========================================================= */
-
-actualizarVistaPrevia();
-
-dibujarLista();
-
-actualizarControles();
